@@ -25,7 +25,7 @@ class Uno {
     init(playerNames) {
         this.playerNum = Array.isArray(playerNames) ? playerNames.length : 0;
 
-        if (this.playerNum < 2) {
+        if (this.playerNum < 2 || this.playerNum > 15) {
             this.showInfo('プレイヤーの人数が正しくありません');
             this.playable = false;
             return;
