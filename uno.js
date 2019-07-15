@@ -73,6 +73,7 @@ class Uno {
 
         let i = 0;
         let clockwise = true; // 時計回り
+        let drawNext = false; // ドローするか
         let skipNext = false; // 次をスキップするか
 
         while (true) {
@@ -89,12 +90,14 @@ class Uno {
             // --------------------
             // 捨て札の山をチェック
             // --------------------
-            if (this.discard.type == TYPE.DRAW_2) {
+            if (drawNext && this.discard.type == TYPE.DRAW_2) {
                 this.draw(2);
+                drawNext = false;
                 this.showInfo('ドロー2が出されたため、2枚引きました');
             }
-            if (this.discard.type == TYPE.WILD_DRAW_4) {
+            if (drawNext && this.discard.type == TYPE.WILD_DRAW_4) {
                 this.draw(4);
+                drawNext = false;
                 this.showInfo('ワイルドドロー4が出されたため、4枚引きました');
             }
 
@@ -124,6 +127,10 @@ class Uno {
                 // 出すカードがリバース
                 if (playCard.type == TYPE.REVERSE) {
                     clockwise = !clockwise;
+                }
+                // 出すカードがドロー
+                if (playCard.type == TYPE.DRAW_2 || playCard.type == TYPE.WILD_DRAW_4) {
+                    drawNext = true;
                 }
                 // 出すカードがスキップ
                 if (playCard.type == TYPE.SKIP) {
