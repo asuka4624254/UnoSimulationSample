@@ -18,8 +18,15 @@ class Player {
      * カードを1枚出す（手札から取り除く）
      */
     play(targetCard) {
-        this.hands = this.hands.filter((card) => {
-            return !card.isEquals(targetCard);
-        });
+        let found = false;
+        const temp = [];
+        for (let i = 0; i < this.hands.length; i++) {
+            if (!found && this.hands[i].isEquals(targetCard)) {
+                found = true;
+                continue;
+            }
+            temp.push(this.hands[i]);
+        }
+        this.hands = temp;
     }
 }
