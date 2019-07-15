@@ -291,24 +291,18 @@ class Uno {
             return;
         }
 
-        let html = $("div#debug_info").html();
+        let html = '';
 
         if (detail) {
-            let drawDeck = this.drawDeck;
-            let period = '';
-            if (this.drawDeck.length > 10) {
-                // drawDeck = drawDeck.slice(0, 9);
-                // period = '...';
-            }
-
-            drawDeck = drawDeck.map((card) => { return card.getImageHtml(); }).join('\n');
+            const drawDeck = this.drawDeck.map((card) => { return card.getImageHtml(); }).join('\n');
             const discardPile = this.discardPile.map((card) => { return card.getImageHtml(); }).join('\n');
+            const selectedColor = this.selectedColor ? this.selectedColor : '';
 
             html += `<hr /><table>
                 <tr><td>プレイ人数</td><td>${this.playerNum}</td></tr>
-                <tr><td>山札</td><td>${drawDeck} ${period}</td></tr>
-                <tr><td>捨て札の山</td><td>${discardPile}</td></tr>
-                <tr><td>指定された色</td><td>${this.selectedColor}</td></tr>`;
+                <tr><td>山札（先頭が山札の一番上）</td><td>${drawDeck}</td></tr>
+                <tr><td>捨て札の山（先頭が捨て札の一番上）</td><td>${discardPile}</td></tr>
+                <tr><td>指定された色</td><td>${selectedColor}</td></tr>`;
 
             for (let i = 0; i < this.playerNum; i++) {
                 const uno = this.players[i].isUno ? '<span class="uno">UNO!</span>' : '';
@@ -321,6 +315,6 @@ class Uno {
 
         html += message ? `<p>${message}</p>` : '';
 
-        $("div#debug_info").html(html);
+        $("div#debug_info").append(html);
     }
 }
