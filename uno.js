@@ -41,8 +41,6 @@ class Uno {
 
         // 捨て札の山に初期カードを置く
         this.setInitialCard();
-
-        this.showInfo('初期カード', true);
     }
 
     /**
@@ -67,23 +65,18 @@ class Uno {
      * ゲームをプレイ
      */
     play() {
-        if (!this.playable) {
-            return;
-        }
-
         let i = 0;
         let clockwise = true; // 時計回り
         let drawNext = false; // ドローするか
         let skipNext = false; // 次をスキップするか
 
         while (true) {
+            if (!this.playable) {
+                break;
+            }
+
             this.currentPlayer = this.players[i];
             this.discard = this.discardPile[0];
-
-            // 山札が無い場合は捨て札の山をシャッフルして再利用する
-            if (this.drawDeck.length < 1) {
-                this.replenish();
-            }
 
             this.showInfo(`${this.currentPlayer.name}の手番です`, true);
 
@@ -105,7 +98,6 @@ class Uno {
             // 手札から出せるカードを探す
             // --------------------
             let playableCards = this.getPlayableCard();
-            console.log(playableCards);
 
             if (playableCards.length < 1) {
                 // 出せる手札が無い場合は山札から一枚引く
@@ -159,7 +151,7 @@ class Uno {
             // --------------------
             if (this.currentPlayer.hands.length < 1) {
                 this.showInfo(`${this.currentPlayer.name}の上がりです！`);
-                break;
+                this.playable = false;
             }
 
             // --------------------
@@ -178,16 +170,6 @@ class Uno {
     }
 
     /**
-     * 捨て札の山の最後に出されたカード以外をシャッフルして山札に補充する
-     */
-    replenish() {
-        const cards = Utility.shuffle(this.discardPile.slice(1));
-        this.drawDeck = this.drawDeck.concat(cards);
-        this.discardPile = [this.discard];
-        this.showInfo('山札にカードを補充しました！');
-    }
-
-    /**
      * カードを引く
      *
      * @param num 引く枚数
@@ -195,15 +177,31 @@ class Uno {
     draw(num) {
         let imageHtmls = [];
         for (let i = 0; i < num; i++) {
-            if (this.drawDeck.length < 1) {
-                this.replenish();
+            if (this.drawDeck.length < 1 && !this.replenish()) {
+                this.playable = false;
+                break;
             }
             this.currentPlayer.draw(this.drawDeck[0]);
-            this.drawDeck = this.drawDeck.slice(1);
-
             imageHtmls.push(this.drawDeck[0].getImageHtml());
+
+            this.drawDeck = this.drawDeck.slice(1);
         }
         this.showInfo(`引いたカード：${imageHtmls.join(' ')}`);
+    }
+
+    /**
+     * 捨て札の山の最後に出されたカード以外をシャッフルして山札に補充する
+     */
+    replenish() {
+        if (this.discardPile.length < 2) {
+            this.showInfo('捨て札が足りないため、山札に補充できませんでした（ゲームが続行できません）');
+            return false;
+        }
+        const cards = Utility.shuffle(this.discardPile.slice(1));
+        this.drawDeck = this.drawDeck.concat(cards);
+        this.discardPile = [this.discard];
+
+        return true;
     }
 
     /**
